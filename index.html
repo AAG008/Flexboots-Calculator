@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flex Boots Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+        h2 { border-bottom: 2px solid #ccc; padding-bottom: 5px; }
+        .summary-container { display: flex; gap: 20px; margin-bottom: 20px; }
+        table { border-collapse: collapse; width: 100%; max-width: 400px; background: #fff; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background-color: #0078D7; color: white; }
+        input[type="number"] { width: 60px; padding: 5px; text-align: center; }
+        .main-table { max-width: 600px; }
+    </style>
+</head>
+<body>
+
+    <h2>Top Summaries</h2>
+    <div class="summary-container">
+        <table>
+            <thead>
+                <tr><th>Neoprene Size</th><th>Total Need</th></tr>
+            </thead>
+            <tbody id="neo-summary">
+                <tr><td>XS</td><td id="neo-XS">0</td></tr>
+                <tr><td>S</td><td id="neo-S">0</td></tr>
+                <tr><td>M</td><td id="neo-M">0</td></tr>
+                <tr><td>L</td><td id="neo-L">0</td></tr>
+            </tbody>
+        </table>
+
+        <table>
+            <thead>
+                <tr><th>Back Strap Size</th><th>Total Need</th></tr>
+            </thead>
+            <tbody id="strap-summary">
+                <tr><td>XS</td><td id="strap-XS">0</td></tr>
+                <tr><td>S</td><td id="strap-S">0</td></tr>
+                <tr><td>M</td><td id="strap-M">0</td></tr>
+                <tr><td>L</td><td id="strap-L">0</td></tr>
+                <tr><td>XL</td><td id="strap-XL">0</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Boot Quantities</h2>
+    <table class="main-table">
+        <thead>
+            <tr>
+                <th>Boot Size</th>
+                <th>Boot Qty</th>
+                <th>Neoprene Gaiter</th>
+                <th>Back Strap</th>
+            </tr>
+        </thead>
+        <tbody id="calculator-body">
+            </tbody>
+    </table>
+
+    <script>
+        // Reference logic extracted from the uploaded CSV
+        const referenceData = [
+            { size: 80, neo: 'XS', strap: 'XS' },
+            { size: 85, neo: 'XS', strap: 'S' },
+            { size: 90, neo: 'XS', strap: 'S' },
+            { size: 95, neo: 'XS', strap: 'S' },
+            { size: 100, neo: 'XS', strap: 'S' },
+            { size: 105, neo: 'S', strap: 'S' },
+            { size: 110, neo: 'S', strap: 'S' },
+            { size: 115, neo: 'M', strap: 'M' },
+            { size: 120, neo: 'M', strap: 'M' },
+            { size: 125, neo: 'M', strap: 'L' },
+            { size: 130, neo: 'M', strap: 'L' },
+            { size: 135, neo: 'L', strap: 'L' },
+            { size: 140, neo: 'L', strap: 'L' },
+            { size: 145, neo: 'L', strap: 'XL' },
+            { size: 150, neo: 'L', strap: 'XL' }
+        ];
+
+        const tbody = document.getElementById('calculator-body');
+
+        // 1. Initialize the table rows
+        referenceData.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.size}</td>
+                <td><input type="number" min="0" data-size="${item.size}" data-neo="${item.neo}" data-strap="${item.strap}" class="qty-input"></td>
+                <td>${item.neo}</td>
+                <td>${item.strap}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // 2. Add event listeners to input fields
+        document.querySelectorAll('.qty-input').forEach(input => {
+            input.addEventListener('input', calculateTotals);
+        });
+
+        // 3. Calculation logic
+        function calculateTotals() {
+            // Reset totals
+            const totals = {
+                neo: { 'XS': 0, 'S': 0, 'M': 0, 'L': 0 },
+                strap: { 'XS': 0, 'S': 0, 'M': 0, 'L': 0, 'XL': 0 }
+            };
+
+            // Aggregate quantities
+            document.querySelectorAll('.qty-input').forEach(input => {
+                const qty = parseInt(input.value) || 0;
+                if (qty > 0) {
+                    const neoSize = input.getAttribute('data-neo');
+                    const strapSize = input.getAttribute('data-strap');
+                    
+                    totals.neo[neoSize] += qty;
+                    totals.strap[strapSize] += qty;
+                }
+            });
+
+            // Update DOM
+            for (const [size, count] of Object.entries(totals.neo)) {
+                document.getElementById(`neo-${size}`).innerText = count;
+            }
+            for (const [size, count] of Object.entries(totals.strap)) {
+                document.getElementById(`strap-${size}`).innerText = count;
+            }
+        }
+    </script>
+</body>
+</html>
